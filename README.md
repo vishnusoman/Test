@@ -1,6 +1,6 @@
 # RW1DevopsTestProject
 
-This is a text project for recrutation purpouse. 
+This is a test project for recrutation purpouse. 
 
 Based on Boost Asio http server example version 15.8
 
