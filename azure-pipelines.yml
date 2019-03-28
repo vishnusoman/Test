@@ -1,0 +1,42 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+variables:
+  buildnumber: $(Build.BuildId).$(Build.BuildNumber).$(Build.SourceVersion)
+  source: $(Build.SourcesDirectory)
+  target: $(Build.ArtifactStagingDirectory)
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+name: c++_website
+steps:
+
+- script: |
+      sudo apt-get install libboost-all-dev
+  displayName: 'installing libboost-all-dev and g++' 
+  
+- script: |
+    g++ -std=c++11 -I/usr/include/boost/asio -I/usr/include/boost -o binary_$(buildnumber).out main.cpp connection.cpp connection_manager.cpp mime_types.cpp reply.cpp request_handler.cpp request_parser.cpp server.cpp -lboost_system -lboost_thread -lpthread
+  displayName: $(Build.BuildId).$(Build.BuildNumber).$(Build.SourceVersion)
+
+- script: |
+    echo $(buildnumber) > readme.txt
+  displayName: 'creating readme.txt'
+
+- task: CopyFiles@2
+  inputs:
+    contents: |
+      $(source)/readme.txt
+      $(source)/binary_$(buildnumber).out
+    targetFolder: $(target)
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(target)
+    artifactName: $(buildnumber)
